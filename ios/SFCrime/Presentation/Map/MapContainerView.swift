@@ -6,6 +6,8 @@ struct MapContainerView: View {
     @StateObject private var viewModel = MapViewModel()
     @State private var selectedCall: DispatchCall?
     @State private var showingFilters = false
+    @State private var historicalContextCoordinate: CLLocationCoordinate2D?
+    @State private var showingHistoricalContext = false
 
     var body: some View {
         NavigationStack {
@@ -47,10 +49,21 @@ struct MapContainerView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingFilters = true
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
+                    HStack(spacing: 16) {
+                        // Historical context for map center
+                        Button {
+                            historicalContextCoordinate = viewModel.region.center
+                            showingHistoricalContext = true
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                        }
+                        .accessibilityLabel("View location history")
+
+                        Button {
+                            showingFilters = true
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease.circle")
+                        }
                     }
                 }
             }
@@ -59,6 +72,15 @@ struct MapContainerView: View {
             }
             .sheet(item: $selectedCall) { call in
                 CallDetailView(call: call)
+            }
+            .sheet(isPresented: $showingHistoricalContext) {
+                if let coordinate = historicalContextCoordinate {
+                    HistoricalContextView(
+                        coordinate: coordinate,
+                        onDismiss: { showingHistoricalContext = false }
+                    )
+                    .presentationDetents([.medium, .large])
+                }
             }
             .task {
                 await viewModel.loadInitialData()

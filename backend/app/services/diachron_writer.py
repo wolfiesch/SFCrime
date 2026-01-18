@@ -17,16 +17,30 @@ Architecture:
 - Tracks import sessions for provenance
 """
 
+import json
 import logging
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import AsyncGenerator
 from uuid import UUID, uuid4
 
 import asyncpg
+from asyncpg.types import Range
 
 from app.config import get_settings
 from app.services.diachron_adapter import DiachronFact
+
+
+def fact_to_daterange(fact: DiachronFact) -> Range:
+    """Convert a DiachronFact's temporal data to asyncpg Range for DATERANGE column."""
+    start = fact.valid_from.date()
+    if fact.valid_to:
+        # [) semantics: inclusive start, exclusive end
+        end = fact.valid_to.date() + timedelta(days=1)
+    else:
+        # Point-in-time: single-day range
+        end = start + timedelta(days=1)
+    return Range(start, end, lower_inc=True, upper_inc=False)
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -197,7 +211,7 @@ class DiachronWriter:
 
             # Insert new fact
             fact_id = fact.id
-            daterange = fact.to_daterange_sql()
+            daterange = fact_to_daterange(fact)
 
             await conn.execute(
                 """
@@ -208,7 +222,7 @@ class DiachronWriter:
                     external_id, created_at
                 ) VALUES (
                     $1, $2, $3, $4, $5,
-                    $6::daterange, $7::time_granularity, $8::time_certainty, $9,
+                    $6, $7::time_granularity, $8::time_certainty, $9,
                     $10, $11, $12::significance_level, $13, $14,
                     $15, $16
                 )
@@ -225,7 +239,7 @@ class DiachronWriter:
                 fact.categories,
                 fact.tags,
                 fact.significance,
-                str(fact.sources),  # JSONB stored as text
+                json.dumps(fact.sources),  # JSONB stored as text
                 fact.source_dataset,
                 fact.external_id,
                 datetime.now(UTC),
@@ -241,14 +255,14 @@ class DiachronWriter:
         kind_id: UUID,
     ) -> None:
         """Update an existing fact with new data."""
-        daterange = fact.to_daterange_sql()
+        daterange = fact_to_daterange(fact)
 
         await conn.execute(
             """
             UPDATE location_facts SET
                 title = $2,
                 description = $3,
-                valid_during = $4::daterange,
+                valid_during = $4,
                 date_display = $5,
                 categories = $6,
                 tags = $7,
@@ -263,7 +277,7 @@ class DiachronWriter:
             fact.date_display,
             fact.categories,
             fact.tags,
-            str(fact.sources),
+            json.dumps(fact.sources),
             datetime.now(UTC),
         )
 
@@ -324,7 +338,7 @@ class DiachronWriter:
                         updated += 1
                     else:
                         # Insert new
-                        daterange = fact.to_daterange_sql()
+                        daterange = fact_to_daterange(fact)
 
                         await conn.execute(
                             """
@@ -335,7 +349,7 @@ class DiachronWriter:
                                 sources, source_dataset, external_id, created_at
                             ) VALUES (
                                 $1, $2, $3, $4, $5,
-                                $6::daterange, $7::time_granularity, $8::time_certainty,
+                                $6, $7::time_granularity, $8::time_certainty,
                                 $9, $10, $11, $12::significance_level,
                                 $13, $14, $15, $16
                             )
@@ -352,7 +366,7 @@ class DiachronWriter:
                             fact.categories,
                             fact.tags,
                             fact.significance,
-                            str(fact.sources),
+                            json.dumps(fact.sources),
                             fact.source_dataset,
                             fact.external_id,
                             datetime.now(UTC),

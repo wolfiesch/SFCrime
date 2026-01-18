@@ -30,6 +30,8 @@
 		E168931CA57036428F29A8BC /* WebSocketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3FC1F10BB2177890696DEF /* WebSocketTests.swift */; };
 		E4FE0D58983C624ECB2837A6 /* DispatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05AF6F591F3C44FD2E90F89 /* DispatchCall.swift */; };
 		FDF0781EF4CB906DE1817EE8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6815873E63D661D65A33A4E /* ContentView.swift */; };
+		C3D4E5F67890ABCD12345678 /* DiachronClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F67890ABCD1234 /* DiachronClient.swift */; };
+		D4E5F67890ABCD1234567890 /* HistoricalContextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C3D4E5F67890ABCD123456 /* HistoricalContextView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,8 @@
 		E16E990C6A80CB101653F2EB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F1D5C1C8FB0DA8BFDFD9B3C5 /* SFCrimeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFCrimeApp.swift; sourceTree = "<group>"; };
 		F87FD0910630D9DA3D51A77E /* CallListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallListView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F67890ABCD1234 /* DiachronClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiachronClient.swift; sourceTree = "<group>"; };
+		B2C3D4E5F67890ABCD123456 /* HistoricalContextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoricalContextView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -151,6 +155,7 @@
 			children = (
 				2304387DBFBFDE358855B82A /* CrimeMapView.swift */,
 				CD0C6D41242DAD970E4EF3EF /* FilterSheetView.swift */,
+				B2C3D4E5F67890ABCD123456 /* HistoricalContextView.swift */,
 				31FD7F18B358081D3B85B623 /* MapContainerView.swift */,
 			);
 			path = Map;
@@ -232,6 +237,7 @@
 			isa = PBXGroup;
 			children = (
 				85A0D31D81E9F33404362106 /* APIClient.swift */,
+				A1B2C3D4E5F67890ABCD1234 /* DiachronClient.swift */,
 				0C14C50A3BF32527F4DF2071 /* WebSocketClient.swift */,
 				334EE979FC9D3DBE083EB8AF /* WebSocketMessages.swift */,
 			);
@@ -348,9 +354,11 @@
 				4F842EB29BDEF7D320ED7CE0 /* CallListView.swift in Sources */,
 				FDF0781EF4CB906DE1817EE8 /* ContentView.swift in Sources */,
 				AFE1A928F91AA1461CBAD767 /* CrimeMapView.swift in Sources */,
+				C3D4E5F67890ABCD12345678 /* DiachronClient.swift in Sources */,
 				E4FE0D58983C624ECB2837A6 /* DispatchCall.swift in Sources */,
 				B8097BCBD1362F3A951B233D /* District.swift in Sources */,
 				B6033DDDF93292543423634C /* FilterSheetView.swift in Sources */,
+				D4E5F67890ABCD1234567890 /* HistoricalContextView.swift in Sources */,
 				DBD6FCF846AF2430D35A1463 /* IncidentReport.swift in Sources */,
 				CCD3CA5970179B06DFBD6922 /* LocationManager.swift in Sources */,
 				308FBA89904F591C8D0BD2C7 /* MapContainerView.swift in Sources */,

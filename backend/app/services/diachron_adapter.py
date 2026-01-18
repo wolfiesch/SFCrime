@@ -506,6 +506,436 @@ def incident_report_dict_to_diachron(record: dict[str, Any]) -> DiachronFact | N
 
 
 # ============================================================================
+# FIRE CALL ADAPTER
+# ============================================================================
+
+
+def fire_call_dict_to_diachron(record: dict[str, Any]) -> DiachronFact | None:
+    """
+    Convert a raw DataSF Fire Department call record to Diachron fact format.
+
+    Used during initial ingestion when we have raw API response, not ORM models.
+
+    Args:
+        record: Raw dictionary from DataSF SODA API (nuek-vuh3 dataset)
+
+    Returns:
+        DiachronFact or None if record is invalid
+    """
+    # Extract coordinates from case_location GeoJSON
+    case_location = record.get("case_location", {})
+    if not case_location or "coordinates" not in case_location:
+        return None
+
+    coords = case_location["coordinates"]
+    longitude, latitude = coords[0], coords[1]
+
+    # Validate SF bounds
+    if not (37.6 <= latitude <= 37.85) or not (-122.55 <= longitude <= -122.35):
+        return None
+
+    # Parse received datetime
+    received_str = record.get("received_dttm")
+    if not received_str:
+        return None
+
+    try:
+        received_at = datetime.fromisoformat(received_str.replace("Z", "+00:00"))
+        if received_at.tzinfo is None:
+            received_at = received_at.replace(tzinfo=UTC)
+    except (ValueError, AttributeError):
+        return None
+
+    # Parse available datetime (when call was complete) if present
+    available_at = None
+    if available_str := record.get("available_dttm"):
+        try:
+            available_at = datetime.fromisoformat(available_str.replace("Z", "+00:00"))
+            if available_at.tzinfo is None:
+                available_at = available_at.replace(tzinfo=UTC)
+        except (ValueError, AttributeError):
+            pass
+
+    # Build title and description
+    call_type = record.get("call_type", "Fire Department Call")
+    call_type_group = record.get("call_type_group", "")
+    title = call_type
+
+    desc_parts = []
+    if call_type:
+        desc_parts.append(f"Type: {call_type}")
+    if call_type_group:
+        desc_parts.append(f"Category: {call_type_group}")
+    if priority := record.get("priority"):
+        desc_parts.append(f"Priority: {priority}")
+    if disposition := record.get("call_final_disposition"):
+        desc_parts.append(f"Disposition: {disposition}")
+    if address := record.get("address"):
+        desc_parts.append(f"Location: {address}")
+
+    description = " | ".join(desc_parts) if desc_parts else "Fire Department Call"
+
+    # Determine fact kind based on call type
+    kind_code = "fire_call"  # Default
+    call_type_lower = call_type.lower() if call_type else ""
+    if "medical" in call_type_lower:
+        kind_code = "ems_call"
+    elif "structure fire" in call_type_lower or "building fire" in call_type_lower:
+        kind_code = "structure_fire"
+
+    # Build categories
+    categories = ["fire_department"]
+    if "medical" in call_type_lower:
+        categories.append("medical_emergency")
+    elif "fire" in call_type_lower:
+        categories.append("fire_emergency")
+    if call_type_group == "Life-threatening":
+        categories.append("high_priority")
+    elif call_type_group == "Non Life-threatening":
+        categories.append("low_priority")
+
+    # Build tags
+    tags = []
+    if call_type:
+        tags.append(call_type)
+    if unit_type := record.get("unit_type"):
+        tags.append(unit_type)
+
+    return DiachronFact(
+        kind_code=kind_code,
+        title=title,
+        description=description,
+        valid_from=received_at,
+        valid_to=available_at,
+        coordinates_lat=latitude,
+        coordinates_lng=longitude,
+        external_id=record.get("incident_number"),
+        categories=categories,
+        tags=tags,
+        significance="local",
+        time_granularity="day",
+        time_certainty="exact",
+        date_display=received_at.strftime("%b %d, %Y %I:%M %p"),
+        sources=[
+            {
+                "url": "https://data.sfgov.org/resource/nuek-vuh3.json",
+                "title": "DataSF Fire Department Calls for Service",
+                "dataset_id": "nuek-vuh3",
+                "license": "Public Domain",
+            }
+        ],
+        source_dataset="datasf_fire",
+        neighborhood_slug=_normalize_neighborhood(
+            record.get("neighborhoods_analysis_boundaries")
+        ),
+        address=record.get("address"),
+    )
+
+
+def _normalize_neighborhood(neighborhood: str | None) -> str | None:
+    """
+    Normalize a neighborhood name to a Diachron slug.
+
+    Fire dataset uses "Tenderloin" format, we need "tenderloin" slug.
+    """
+    if not neighborhood:
+        return None
+    return neighborhood.lower().replace(" ", "-").replace("'", "")
+
+
+# ============================================================================
+# 311 SERVICE REQUEST ADAPTER
+# ============================================================================
+
+
+def service_request_dict_to_diachron(record: dict[str, Any]) -> DiachronFact | None:
+    """
+    Convert a raw DataSF 311 Service Request record to Diachron fact format.
+
+    Args:
+        record: Raw dictionary from DataSF SODA API (vw6y-z8j6 dataset)
+
+    Returns:
+        DiachronFact or None if record is invalid
+    """
+    # Extract coordinates - try multiple fields
+    latitude = None
+    longitude = None
+
+    # Try lat/long fields first
+    if record.get("lat") and record.get("long"):
+        try:
+            latitude = float(record["lat"])
+            longitude = float(record["long"])
+        except (ValueError, TypeError):
+            pass
+
+    # Try point_geom GeoJSON if lat/long not available
+    if not latitude or not longitude:
+        point_geom = record.get("point_geom", {})
+        if point_geom and "coordinates" in point_geom:
+            coords = point_geom["coordinates"]
+            longitude, latitude = coords[0], coords[1]
+
+    if not latitude or not longitude:
+        return None
+
+    # Validate SF bounds
+    if not (37.6 <= latitude <= 37.85) or not (-122.55 <= longitude <= -122.35):
+        return None
+
+    # Parse requested datetime
+    requested_str = record.get("requested_datetime")
+    if not requested_str:
+        return None
+
+    try:
+        requested_at = datetime.fromisoformat(requested_str.replace("Z", "+00:00"))
+        if requested_at.tzinfo is None:
+            requested_at = requested_at.replace(tzinfo=UTC)
+    except (ValueError, AttributeError):
+        return None
+
+    # Parse closed datetime if present
+    closed_at = None
+    if closed_str := record.get("closed_date"):
+        try:
+            closed_at = datetime.fromisoformat(closed_str.replace("Z", "+00:00"))
+            if closed_at.tzinfo is None:
+                closed_at = closed_at.replace(tzinfo=UTC)
+        except (ValueError, AttributeError):
+            pass
+
+    # Build title and description
+    service_name = record.get("service_name", "311 Request")
+    service_subtype = record.get("service_subtype", "")
+    service_details = record.get("service_details", "")
+
+    title = service_name
+    if service_subtype and service_subtype != service_name:
+        title = f"{service_name}: {service_subtype}"
+
+    desc_parts = []
+    if service_details:
+        desc_parts.append(service_details)
+    if status := record.get("status_description"):
+        desc_parts.append(f"Status: {status}")
+    if agency := record.get("agency_responsible"):
+        desc_parts.append(f"Agency: {agency}")
+    if address := record.get("address"):
+        desc_parts.append(f"Location: {address}")
+
+    description = " | ".join(desc_parts) if desc_parts else title
+
+    # Build categories based on service type
+    categories = ["city_services", "311"]
+    service_lower = service_name.lower() if service_name else ""
+    if "cleaning" in service_lower or "debris" in service_lower:
+        categories.append("street_cleaning")
+    elif "graffiti" in service_lower:
+        categories.append("graffiti")
+    elif "pothole" in service_lower or "pavement" in service_lower:
+        categories.append("road_repair")
+    elif "homeless" in service_lower or "encampment" in service_lower:
+        categories.append("homeless_services")
+    elif "noise" in service_lower:
+        categories.append("noise_complaint")
+
+    # Build tags
+    tags = []
+    if service_name:
+        tags.append(service_name)
+    if source := record.get("source"):
+        tags.append(source)
+
+    return DiachronFact(
+        kind_code="311_case",
+        title=title,
+        description=description,
+        valid_from=requested_at,
+        valid_to=closed_at,
+        coordinates_lat=latitude,
+        coordinates_lng=longitude,
+        external_id=record.get("service_request_id"),
+        categories=categories,
+        tags=tags,
+        significance="local",
+        time_granularity="day",
+        time_certainty="exact",
+        date_display=requested_at.strftime("%b %d, %Y %I:%M %p"),
+        sources=[
+            {
+                "url": "https://data.sfgov.org/resource/vw6y-z8j6.json",
+                "title": "DataSF 311 Cases",
+                "dataset_id": "vw6y-z8j6",
+                "license": "Public Domain",
+            }
+        ],
+        source_dataset="datasf_311",
+        neighborhood_slug=_normalize_neighborhood(
+            record.get("analysis_neighborhood")
+        ),
+        address=record.get("address"),
+    )
+
+
+# ============================================================================
+# TRAFFIC CRASH ADAPTER
+# ============================================================================
+
+
+def traffic_crash_dict_to_diachron(record: dict[str, Any]) -> DiachronFact | None:
+    """
+    Convert a raw DataSF Traffic Crash record to Diachron fact format.
+
+    Args:
+        record: Raw dictionary from DataSF SODA API (ubvf-ztfx dataset)
+
+    Returns:
+        DiachronFact or None if record is invalid
+    """
+    # Extract coordinates - try multiple fields
+    latitude = None
+    longitude = None
+
+    # Try tb_latitude/tb_longitude first
+    if record.get("tb_latitude") and record.get("tb_longitude"):
+        try:
+            latitude = float(record["tb_latitude"])
+            longitude = float(record["tb_longitude"])
+        except (ValueError, TypeError):
+            pass
+
+    # Try point GeoJSON if lat/lng not available
+    if not latitude or not longitude:
+        point = record.get("point", {})
+        if point and "coordinates" in point:
+            coords = point["coordinates"]
+            longitude, latitude = coords[0], coords[1]
+
+    if not latitude or not longitude:
+        return None
+
+    # Validate SF bounds
+    if not (37.6 <= latitude <= 37.85) or not (-122.55 <= longitude <= -122.35):
+        return None
+
+    # Parse collision datetime
+    collision_str = record.get("collision_datetime")
+    if not collision_str:
+        return None
+
+    try:
+        collision_at = datetime.fromisoformat(collision_str.replace("Z", "+00:00"))
+        if collision_at.tzinfo is None:
+            collision_at = collision_at.replace(tzinfo=UTC)
+    except (ValueError, AttributeError):
+        return None
+
+    # Build title and description
+    collision_type = record.get("type_of_collision", "Traffic Collision")
+    severity = record.get("collision_severity", "")
+    title = collision_type
+    if severity:
+        title = f"{collision_type} - {severity}"
+
+    desc_parts = []
+    if collision_type:
+        desc_parts.append(f"Type: {collision_type}")
+    if severity:
+        desc_parts.append(f"Severity: {severity}")
+
+    # Add party information
+    party1 = record.get("party1_type")
+    party2 = record.get("party2_type")
+    if party1 and party2:
+        desc_parts.append(f"Parties: {party1} vs {party2}")
+    elif party1:
+        desc_parts.append(f"Party: {party1}")
+
+    # Add casualties
+    killed = int(record.get("number_killed", 0) or 0)
+    injured = int(record.get("number_injured", 0) or 0)
+    if killed or injured:
+        desc_parts.append(f"Casualties: {killed} killed, {injured} injured")
+
+    # Add location
+    primary_rd = record.get("primary_rd", "")
+    secondary_rd = record.get("secondary_rd", "")
+    if primary_rd and secondary_rd:
+        desc_parts.append(f"Location: {primary_rd} & {secondary_rd}")
+    elif primary_rd:
+        desc_parts.append(f"Location: {primary_rd}")
+
+    # Add conditions
+    if weather := record.get("weather_1"):
+        desc_parts.append(f"Weather: {weather}")
+
+    description = " | ".join(desc_parts) if desc_parts else "Traffic Collision"
+
+    # Determine kind and categories based on severity
+    kind_code = "traffic_crash"
+    categories = ["traffic", "collision"]
+
+    severity_lower = severity.lower() if severity else ""
+    if "fatal" in severity_lower or killed > 0:
+        kind_code = "fatal_crash"
+        categories.append("fatal")
+    elif "injury" in severity_lower or injured > 0:
+        categories.append("injury")
+    else:
+        categories.append("property_damage")
+
+    # Add type-specific categories
+    collision_lower = collision_type.lower() if collision_type else ""
+    if "pedestrian" in collision_lower:
+        categories.append("pedestrian_involved")
+    elif "bicycle" in collision_lower or "bike" in collision_lower:
+        categories.append("bicycle_involved")
+    elif "motorcycle" in collision_lower:
+        categories.append("motorcycle_involved")
+
+    # Build tags
+    tags = []
+    if collision_type:
+        tags.append(collision_type)
+    if weather := record.get("weather_1"):
+        tags.append(weather)
+    if lighting := record.get("lighting"):
+        tags.append(lighting)
+
+    return DiachronFact(
+        kind_code=kind_code,
+        title=title,
+        description=description,
+        valid_from=collision_at,
+        valid_to=None,  # Point-in-time event
+        coordinates_lat=latitude,
+        coordinates_lng=longitude,
+        external_id=record.get("unique_id"),
+        categories=categories,
+        tags=tags,
+        significance="local" if killed == 0 else "city",  # Fatal crashes are more significant
+        time_granularity="day",
+        time_certainty="exact",
+        date_display=collision_at.strftime("%b %d, %Y %I:%M %p"),
+        sources=[
+            {
+                "url": "https://data.sfgov.org/resource/ubvf-ztfx.json",
+                "title": "DataSF Traffic Crashes",
+                "dataset_id": "ubvf-ztfx",
+                "license": "Public Domain",
+            }
+        ],
+        source_dataset="datasf_traffic",
+        neighborhood_slug=_normalize_neighborhood(
+            record.get("analysis_neighborhood")
+        ),
+        address=f"{primary_rd} & {secondary_rd}" if primary_rd and secondary_rd else primary_rd,
+    )
+
+
+# ============================================================================
 # HELPERS
 # ============================================================================
 

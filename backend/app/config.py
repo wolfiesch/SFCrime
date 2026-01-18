@@ -26,10 +26,16 @@ class Settings(BaseSettings):
     soda_base_url: str = "https://data.sfgov.org/resource"
     dispatch_calls_dataset_id: str = "gnap-fj3t"
     incident_reports_dataset_id: str = "wg3w-h783"
+    fire_calls_dataset_id: str = "nuek-vuh3"
+    service_requests_dataset_id: str = "vw6y-z8j6"
+    traffic_crashes_dataset_id: str = "ubvf-ztfx"
 
     # Ingestion settings
     dispatch_poll_interval_minutes: int = 5
     incidents_poll_interval_minutes: int = 60
+    fire_calls_poll_interval_minutes: int = 15
+    service_requests_poll_interval_minutes: int = 30
+    traffic_crashes_poll_interval_minutes: int = 60
     dispatch_retention_hours: int = 48
     backfill_chunk_days: int = 7
 

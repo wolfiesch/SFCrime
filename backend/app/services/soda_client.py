@@ -157,6 +157,42 @@ class SODAClient:
 
         return records
 
+    async def fetch_fire_calls(
+        self,
+        since: datetime | None = None,
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        """
+        Fetch Fire Department calls from nuek-vuh3 dataset.
+
+        Args:
+            since: Only fetch records after this datetime (incremental sync)
+            limit: Maximum number of records to fetch
+            offset: Pagination offset
+
+        Returns:
+            List of fire call records
+        """
+        url = f"{self.base_url}/{settings.fire_calls_dataset_id}.json"
+
+        params: dict[str, Any] = {
+            "$limit": limit,
+            "$offset": offset,
+            "$order": "received_dttm DESC",
+        }
+
+        # Add incremental sync filter
+        if since:
+            since_str = since.strftime("%Y-%m-%dT%H:%M:%S")
+            params["$where"] = f"received_dttm > '{since_str}'"
+
+        logger.info(f"Fetching fire calls: limit={limit}, since={since}")
+        records = await self._request_with_retry(url, params)
+        logger.info(f"Fetched {len(records)} fire call records")
+
+        return records
+
     async def fetch_all_dispatch_calls(
         self,
         since: datetime | None = None,
@@ -229,6 +265,195 @@ class SODAClient:
             # Safety limit - keep reasonable for memory/timeout
             if offset >= 50000:
                 logger.warning("Reached safety limit of 50000 records for incident reports")
+                break
+
+        return all_records
+
+    async def fetch_all_fire_calls(
+        self,
+        since: datetime | None = None,
+        batch_size: int = 1000,
+    ) -> list[dict[str, Any]]:
+        """
+        Fetch all fire calls with pagination.
+
+        The fire dataset has many records per incident (one per unit dispatched),
+        but we deduplicate by incident_number in the ingestion layer.
+
+        Args:
+            since: Only fetch records after this datetime
+            batch_size: Number of records per request
+
+        Returns:
+            All matching fire call records
+        """
+        all_records: list[dict[str, Any]] = []
+        offset = 0
+
+        while True:
+            batch = await self.fetch_fire_calls(
+                since=since,
+                limit=batch_size,
+                offset=offset,
+            )
+
+            if not batch:
+                break
+
+            all_records.extend(batch)
+            offset += batch_size
+
+            # Safety limit - fire dataset is large, keep reasonable
+            if offset >= 50000:
+                logger.warning("Reached safety limit of 50000 records for fire calls")
+                break
+
+        return all_records
+
+    async def fetch_service_requests(
+        self,
+        since: datetime | None = None,
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        """
+        Fetch 311 Service Requests from vw6y-z8j6 dataset.
+
+        Args:
+            since: Only fetch records after this datetime (incremental sync)
+            limit: Maximum number of records to fetch
+            offset: Pagination offset
+
+        Returns:
+            List of service request records
+        """
+        url = f"{self.base_url}/{settings.service_requests_dataset_id}.json"
+
+        params: dict[str, Any] = {
+            "$limit": limit,
+            "$offset": offset,
+            "$order": "updated_datetime DESC",
+        }
+
+        # Add incremental sync filter
+        if since:
+            since_str = since.strftime("%Y-%m-%dT%H:%M:%S")
+            params["$where"] = f"updated_datetime > '{since_str}'"
+
+        logger.info(f"Fetching 311 service requests: limit={limit}, since={since}")
+        records = await self._request_with_retry(url, params)
+        logger.info(f"Fetched {len(records)} service request records")
+
+        return records
+
+    async def fetch_all_service_requests(
+        self,
+        since: datetime | None = None,
+        batch_size: int = 1000,
+    ) -> list[dict[str, Any]]:
+        """
+        Fetch all 311 service requests with pagination.
+
+        Args:
+            since: Only fetch records after this datetime
+            batch_size: Number of records per request
+
+        Returns:
+            All matching service request records
+        """
+        all_records: list[dict[str, Any]] = []
+        offset = 0
+
+        while True:
+            batch = await self.fetch_service_requests(
+                since=since,
+                limit=batch_size,
+                offset=offset,
+            )
+
+            if not batch:
+                break
+
+            all_records.extend(batch)
+            offset += batch_size
+
+            # Safety limit - 311 dataset is large
+            if offset >= 50000:
+                logger.warning("Reached safety limit of 50000 records for 311 requests")
+                break
+
+        return all_records
+
+    async def fetch_traffic_crashes(
+        self,
+        since: datetime | None = None,
+        limit: int = 1000,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        """
+        Fetch Traffic Crashes from ubvf-ztfx dataset.
+
+        Args:
+            since: Only fetch records after this datetime (incremental sync)
+            limit: Maximum number of records to fetch
+            offset: Pagination offset
+
+        Returns:
+            List of traffic crash records
+        """
+        url = f"{self.base_url}/{settings.traffic_crashes_dataset_id}.json"
+
+        params: dict[str, Any] = {
+            "$limit": limit,
+            "$offset": offset,
+            "$order": "collision_datetime DESC",
+        }
+
+        # Add incremental sync filter
+        if since:
+            since_str = since.strftime("%Y-%m-%dT%H:%M:%S")
+            params["$where"] = f"collision_datetime > '{since_str}'"
+
+        logger.info(f"Fetching traffic crashes: limit={limit}, since={since}")
+        records = await self._request_with_retry(url, params)
+        logger.info(f"Fetched {len(records)} traffic crash records")
+
+        return records
+
+    async def fetch_all_traffic_crashes(
+        self,
+        since: datetime | None = None,
+        batch_size: int = 1000,
+    ) -> list[dict[str, Any]]:
+        """
+        Fetch all traffic crashes with pagination.
+
+        Args:
+            since: Only fetch records after this datetime
+            batch_size: Number of records per request
+
+        Returns:
+            All matching traffic crash records
+        """
+        all_records: list[dict[str, Any]] = []
+        offset = 0
+
+        while True:
+            batch = await self.fetch_traffic_crashes(
+                since=since,
+                limit=batch_size,
+                offset=offset,
+            )
+
+            if not batch:
+                break
+
+            all_records.extend(batch)
+            offset += batch_size
+
+            # Safety limit
+            if offset >= 50000:
+                logger.warning("Reached safety limit of 50000 records for traffic crashes")
                 break
 
         return all_records

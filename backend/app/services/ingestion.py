@@ -14,11 +14,21 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
-from app.models import DispatchCall, IncidentReport, SyncCheckpoint
+from app.models import (
+    DispatchCall,
+    FireCall,
+    IncidentReport,
+    ServiceRequest,
+    SyncCheckpoint,
+    TrafficCrash,
+)
 from app.schemas.dispatch_call import Coordinates, DispatchCallOut
 from app.services.diachron_adapter import (
     dispatch_call_dict_to_diachron,
+    fire_call_dict_to_diachron,
     incident_report_dict_to_diachron,
+    service_request_dict_to_diachron,
+    traffic_crash_dict_to_diachron,
 )
 from app.services.diachron_writer import get_diachron_writer
 from app.services.soda_client import SODAClient
@@ -68,9 +78,21 @@ class IngestionService:
             coords = point["coordinates"]
             return WKTElement(f"POINT({coords[0]} {coords[1]})", srid=4326)
 
-        # Try direct lat/lng (incident reports)
-        lat = record.get("latitude")
-        lng = record.get("longitude")
+        # Try case_location (fire calls)
+        case_location = record.get("case_location")
+        if case_location and "coordinates" in case_location:
+            coords = case_location["coordinates"]
+            return WKTElement(f"POINT({coords[0]} {coords[1]})", srid=4326)
+
+        # Try point_geom (311 service requests)
+        point_geom = record.get("point_geom")
+        if point_geom and "coordinates" in point_geom:
+            coords = point_geom["coordinates"]
+            return WKTElement(f"POINT({coords[0]} {coords[1]})", srid=4326)
+
+        # Try direct lat/lng or lat/long (incident reports, 311, traffic crashes)
+        lat = record.get("latitude") or record.get("lat") or record.get("tb_latitude")
+        lng = record.get("longitude") or record.get("long") or record.get("tb_longitude")
         if lat and lng:
             try:
                 return WKTElement(f"POINT({float(lng)} {float(lat)})", srid=4326)
@@ -371,6 +393,425 @@ class IngestionService:
 
         return upserted
 
+    def _transform_fire_call_record(self, record: dict) -> dict | None:
+        """Transform a raw fire call record into database values."""
+        incident_number = record.get("incident_number")
+        if not incident_number:
+            return None
+
+        received_at = self._parse_datetime(record.get("received_dttm"))
+        if not received_at:
+            return None
+
+        # Parse number of alarms
+        num_alarms = None
+        if alarms_str := record.get("number_of_alarms"):
+            try:
+                num_alarms = int(alarms_str)
+            except ValueError:
+                pass
+
+        # Parse ALS unit boolean
+        is_als = None
+        als_value = record.get("als_unit")
+        if als_value is not None:
+            is_als = als_value in (True, "true", "True", "1", 1)
+
+        return {
+            "incident_number": incident_number,
+            "call_type": record.get("call_type"),
+            "call_type_group": record.get("call_type_group"),
+            "priority": record.get("priority"),
+            "number_of_alarms": num_alarms,
+            "received_at": received_at,
+            "dispatch_at": self._parse_datetime(record.get("dispatch_dttm")),
+            "on_scene_at": self._parse_datetime(record.get("on_scene_dttm")),
+            "transport_at": self._parse_datetime(record.get("transport_dttm")),
+            "hospital_at": self._parse_datetime(record.get("hospital_dttm")),
+            "available_at": self._parse_datetime(record.get("available_dttm")),
+            "disposition": record.get("call_final_disposition"),
+            "location": self._parse_point(record),
+            "location_text": record.get("address"),
+            "zipcode": record.get("zipcode_of_incident"),
+            "neighborhood": record.get("neighborhoods_analysis_boundaries"),
+            "supervisor_district": record.get("supervisor_district"),
+            "battalion": record.get("battalion"),
+            "station_area": record.get("station_area"),
+            "unit_type": record.get("unit_type"),
+            "is_als_unit": is_als,
+            "last_updated_at": self._parse_datetime(record.get("data_as_of")),
+        }
+
+    async def sync_fire_calls(self, initial_days_back: int = 1) -> int:
+        """
+        Sync Fire Department calls from DataSF.
+
+        Args:
+            initial_days_back: Days to look back when no checkpoint exists (default 1)
+
+        Returns:
+            Number of records upserted
+        """
+        logger.info("Starting fire call sync")
+
+        # Get last checkpoint
+        checkpoint = await self.get_checkpoint("fire_calls")
+        logger.info(f"Last fire call checkpoint: {checkpoint}")
+
+        # Fetch new records
+        since = checkpoint
+        if since is None:
+            since = datetime.now(UTC) - timedelta(days=initial_days_back)
+            logger.info(
+                "No fire call checkpoint found; seeding with last %d days (since=%s)",
+                initial_days_back,
+                since,
+            )
+
+        records = await self.soda_client.fetch_all_fire_calls(since=since)
+
+        if not records:
+            logger.info("No new fire call records")
+            return 0
+
+        logger.info(f"Processing {len(records)} fire call records...")
+
+        # Deduplicate by incident_number (keep first/most recent)
+        seen_incidents: set[str] = set()
+        unique_records = []
+        for record in records:
+            incident_number = record.get("incident_number")
+            if incident_number and incident_number not in seen_incidents:
+                seen_incidents.add(incident_number)
+                unique_records.append(record)
+
+        logger.info(f"Deduplicated to {len(unique_records)} unique incidents")
+
+        # Transform records
+        transformed = []
+        latest_updated = checkpoint
+        for record in unique_records:
+            values = self._transform_fire_call_record(record)
+            if values:
+                transformed.append(values)
+                last_updated = values.get("last_updated_at") or values.get("received_at")
+                if last_updated and (not latest_updated or last_updated > latest_updated):
+                    latest_updated = last_updated
+
+        if not transformed:
+            logger.info("No valid fire call records to upsert")
+            return 0
+
+        # Batch upsert for performance (500 at a time)
+        batch_size = 500
+        upserted = 0
+
+        for i in range(0, len(transformed), batch_size):
+            batch = transformed[i:i + batch_size]
+
+            for values in batch:
+                stmt = insert(FireCall).values(**values).on_conflict_do_update(
+                    index_elements=["incident_number"],
+                    set_={k: v for k, v in values.items() if k != "incident_number"},
+                )
+                await self.db.execute(stmt)
+                upserted += 1
+
+            # Commit each batch to avoid long transactions
+            await self.db.commit()
+            logger.info(f"Upserted batch {i // batch_size + 1}: {upserted}/{len(transformed)} records")
+
+        # Update checkpoint
+        if latest_updated:
+            count_result = await self.db.execute(select(func.count(FireCall.id)))
+            count = count_result.scalar()
+            await self.update_checkpoint("fire_calls", latest_updated, count or 0)
+
+        logger.info(f"Synced {upserted} fire call records")
+
+        # Dual-write to Diachron (if enabled)
+        await self._write_to_diachron(unique_records, kind="fire")
+
+        return upserted
+
+    def _transform_service_request_record(self, record: dict) -> dict | None:
+        """Transform a raw 311 service request record into database values."""
+        service_request_id = record.get("service_request_id")
+        if not service_request_id:
+            return None
+
+        requested_at = self._parse_datetime(record.get("requested_datetime"))
+        if not requested_at:
+            return None
+
+        # Extract media URL if present
+        media_url = None
+        media_data = record.get("media_url")
+        if isinstance(media_data, dict):
+            media_url = media_data.get("url")
+        elif isinstance(media_data, str):
+            media_url = media_data
+
+        # Parse supervisor district (comes as "9.00000" format)
+        supervisor_district = None
+        if dist := record.get("supervisor_district"):
+            try:
+                supervisor_district = str(int(float(dist)))
+            except (ValueError, TypeError):
+                supervisor_district = str(dist)
+
+        return {
+            "service_request_id": service_request_id,
+            "service_name": record.get("service_name"),
+            "service_subtype": record.get("service_subtype"),
+            "service_details": record.get("service_details"),
+            "status_description": record.get("status_description"),
+            "status_notes": record.get("status_notes"),
+            "agency_responsible": record.get("agency_responsible"),
+            "source": record.get("source"),
+            "requested_at": requested_at,
+            "closed_at": self._parse_datetime(record.get("closed_date")),
+            "updated_at": self._parse_datetime(record.get("updated_datetime")),
+            "location": self._parse_point(record),
+            "address": record.get("address"),
+            "street": record.get("street"),
+            "neighborhood": record.get("analysis_neighborhood"),
+            "supervisor_district": supervisor_district,
+            "police_district": record.get("police_district"),
+            "media_url": media_url,
+            "last_updated_at": self._parse_datetime(record.get("data_as_of")),
+        }
+
+    async def sync_service_requests(self, initial_days_back: int = 1) -> int:
+        """
+        Sync 311 Service Requests from DataSF.
+
+        Args:
+            initial_days_back: Days to look back when no checkpoint exists (default 1)
+
+        Returns:
+            Number of records upserted
+        """
+        logger.info("Starting 311 service request sync")
+
+        # Get last checkpoint
+        checkpoint = await self.get_checkpoint("service_requests")
+        logger.info(f"Last 311 checkpoint: {checkpoint}")
+
+        # Fetch new records
+        since = checkpoint
+        if since is None:
+            since = datetime.now(UTC) - timedelta(days=initial_days_back)
+            logger.info(
+                "No 311 checkpoint found; seeding with last %d days (since=%s)",
+                initial_days_back,
+                since,
+            )
+
+        records = await self.soda_client.fetch_all_service_requests(since=since)
+
+        if not records:
+            logger.info("No new 311 service request records")
+            return 0
+
+        logger.info(f"Processing {len(records)} 311 service request records...")
+
+        # Transform records
+        transformed = []
+        latest_updated = checkpoint
+        for record in records:
+            values = self._transform_service_request_record(record)
+            if values:
+                transformed.append(values)
+                last_updated = values.get("last_updated_at") or values.get("requested_at")
+                if last_updated and (not latest_updated or last_updated > latest_updated):
+                    latest_updated = last_updated
+
+        if not transformed:
+            logger.info("No valid 311 records to upsert")
+            return 0
+
+        # Batch upsert for performance (500 at a time)
+        batch_size = 500
+        upserted = 0
+
+        for i in range(0, len(transformed), batch_size):
+            batch = transformed[i:i + batch_size]
+
+            for values in batch:
+                stmt = insert(ServiceRequest).values(**values).on_conflict_do_update(
+                    index_elements=["service_request_id"],
+                    set_={k: v for k, v in values.items() if k != "service_request_id"},
+                )
+                await self.db.execute(stmt)
+                upserted += 1
+
+            # Commit each batch to avoid long transactions
+            await self.db.commit()
+            logger.info(f"Upserted batch {i // batch_size + 1}: {upserted}/{len(transformed)} records")
+
+        # Update checkpoint
+        if latest_updated:
+            count_result = await self.db.execute(select(func.count(ServiceRequest.id)))
+            count = count_result.scalar()
+            await self.update_checkpoint("service_requests", latest_updated, count or 0)
+
+        logger.info(f"Synced {upserted} 311 service request records")
+
+        # Dual-write to Diachron (if enabled)
+        await self._write_to_diachron(records, kind="311")
+
+        return upserted
+
+    def _transform_traffic_crash_record(self, record: dict) -> dict | None:
+        """Transform a raw traffic crash record into database values."""
+        unique_id = record.get("unique_id")
+        if not unique_id:
+            return None
+
+        collision_datetime = self._parse_datetime(record.get("collision_datetime"))
+        if not collision_datetime:
+            return None
+
+        # Parse integer fields
+        number_killed = None
+        if killed := record.get("number_killed"):
+            try:
+                number_killed = int(killed)
+            except (ValueError, TypeError):
+                pass
+
+        number_injured = None
+        if injured := record.get("number_injured"):
+            try:
+                number_injured = int(injured)
+            except (ValueError, TypeError):
+                pass
+
+        distance = None
+        if dist := record.get("distance"):
+            try:
+                distance = int(dist)
+            except (ValueError, TypeError):
+                pass
+
+        # Parse supervisor district
+        supervisor_district = None
+        if dist := record.get("supervisor_district"):
+            try:
+                supervisor_district = str(int(float(dist)))
+            except (ValueError, TypeError):
+                supervisor_district = str(dist)
+
+        return {
+            "unique_id": unique_id,
+            "case_id": record.get("case_id_pkey"),
+            "collision_datetime": collision_datetime,
+            "collision_severity": record.get("collision_severity"),
+            "type_of_collision": record.get("type_of_collision"),
+            "number_killed": number_killed,
+            "number_injured": number_injured,
+            "location": self._parse_point(record),
+            "primary_road": record.get("primary_rd"),
+            "secondary_road": record.get("secondary_rd"),
+            "distance": distance,
+            "direction": record.get("direction"),
+            "weather": record.get("weather_1"),
+            "road_surface": record.get("road_surface"),
+            "road_condition": record.get("road_cond_1"),
+            "lighting": record.get("lighting"),
+            "party1_type": record.get("party1_type"),
+            "party2_type": record.get("party2_type"),
+            "pedestrian_action": record.get("ped_action"),
+            "neighborhood": record.get("analysis_neighborhood"),
+            "supervisor_district": supervisor_district,
+            "police_district": record.get("police_district"),
+            "reporting_district": record.get("reporting_district"),
+            "beat_number": record.get("beat_number"),
+            "last_updated_at": self._parse_datetime(record.get("data_as_of")),
+        }
+
+    async def sync_traffic_crashes(self, initial_days_back: int = 7) -> int:
+        """
+        Sync Traffic Crashes from DataSF.
+
+        Args:
+            initial_days_back: Days to look back when no checkpoint exists (default 7)
+
+        Returns:
+            Number of records upserted
+        """
+        logger.info("Starting traffic crash sync")
+
+        # Get last checkpoint
+        checkpoint = await self.get_checkpoint("traffic_crashes")
+        logger.info(f"Last traffic crash checkpoint: {checkpoint}")
+
+        # Fetch new records
+        since = checkpoint
+        if since is None:
+            since = datetime.now(UTC) - timedelta(days=initial_days_back)
+            logger.info(
+                "No traffic crash checkpoint found; seeding with last %d days (since=%s)",
+                initial_days_back,
+                since,
+            )
+
+        records = await self.soda_client.fetch_all_traffic_crashes(since=since)
+
+        if not records:
+            logger.info("No new traffic crash records")
+            return 0
+
+        logger.info(f"Processing {len(records)} traffic crash records...")
+
+        # Transform records
+        transformed = []
+        latest_updated = checkpoint
+        for record in records:
+            values = self._transform_traffic_crash_record(record)
+            if values:
+                transformed.append(values)
+                last_updated = values.get("last_updated_at") or values.get("collision_datetime")
+                if last_updated and (not latest_updated or last_updated > latest_updated):
+                    latest_updated = last_updated
+
+        if not transformed:
+            logger.info("No valid traffic crash records to upsert")
+            return 0
+
+        # Batch upsert for performance (500 at a time)
+        batch_size = 500
+        upserted = 0
+
+        for i in range(0, len(transformed), batch_size):
+            batch = transformed[i:i + batch_size]
+
+            for values in batch:
+                stmt = insert(TrafficCrash).values(**values).on_conflict_do_update(
+                    index_elements=["unique_id"],
+                    set_={k: v for k, v in values.items() if k != "unique_id"},
+                )
+                await self.db.execute(stmt)
+                upserted += 1
+
+            # Commit each batch to avoid long transactions
+            await self.db.commit()
+            logger.info(f"Upserted batch {i // batch_size + 1}: {upserted}/{len(transformed)} records")
+
+        # Update checkpoint
+        if latest_updated:
+            count_result = await self.db.execute(select(func.count(TrafficCrash.id)))
+            count = count_result.scalar()
+            await self.update_checkpoint("traffic_crashes", latest_updated, count or 0)
+
+        logger.info(f"Synced {upserted} traffic crash records")
+
+        # Dual-write to Diachron (if enabled)
+        await self._write_to_diachron(records, kind="traffic")
+
+        return upserted
+
     async def prune_old_dispatch_calls(self) -> int:
         """
         Remove dispatch calls older than retention period (48 hours).
@@ -421,6 +862,12 @@ class IngestionService:
                 fact = dispatch_call_dict_to_diachron(record)
             elif kind == "incident":
                 fact = incident_report_dict_to_diachron(record)
+            elif kind == "fire":
+                fact = fire_call_dict_to_diachron(record)
+            elif kind == "311":
+                fact = service_request_dict_to_diachron(record)
+            elif kind == "traffic":
+                fact = traffic_crash_dict_to_diachron(record)
             else:
                 logger.warning(f"Unknown record kind: {kind}")
                 continue
