@@ -3,17 +3,21 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02691542A9254D0C6DCADD72 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2B562651F754604A4088535 /* ModelTests.swift */; };
 		2100BE5F3E4002449E1FC0B9 /* SFCrimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D5C1C8FB0DA8BFDFD9B3C5 /* SFCrimeApp.swift */; };
 		2B71E9F89CE7B88BC1BAE589 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3C3C56604CF465DED7BCE4 /* ArchiveView.swift */; };
 		308FBA89904F591C8D0BD2C7 /* MapContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31FD7F18B358081D3B85B623 /* MapContainerView.swift */; };
+		3A3395A2DF6902B53797474D /* APIClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 431E74EA420168C4DEC07C97 /* APIClientTests.swift */; };
 		4F842EB29BDEF7D320ED7CE0 /* CallListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87FD0910630D9DA3D51A77E /* CallListView.swift */; };
+		55ADE5F10F2A4F9783778B77 /* WebSocketMessages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 334EE979FC9D3DBE083EB8AF /* WebSocketMessages.swift */; };
 		7E8056B4F67490F760035F69 /* Priority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A6B3EEE79B98B964D030EF /* Priority.swift */; };
 		8408EADB02D593EF6AB5851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7CCD3813A6F75F74AA0FE3B3 /* Assets.xcassets */; };
 		8AEBE0E85269B0217A3570C9 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A0D31D81E9F33404362106 /* APIClient.swift */; };
+		8C9F9454786376CC2C7B8FB4 /* WebSocketClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C14C50A3BF32527F4DF2071 /* WebSocketClient.swift */; };
 		973165868766FEB3B043E524 /* CachedDispatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5FAF3F394C5F1879BC6056 /* CachedDispatchCall.swift */; };
 		A4B6FF31D21E7E3974194764 /* CachedIncidentReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF67806CEE322132911E5B06 /* CachedIncidentReport.swift */; };
 		AA46C579DA09B47551EF331D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16E990C6A80CB101653F2EB /* SettingsView.swift */; };
@@ -23,6 +27,7 @@
 		CCD3CA5970179B06DFBD6922 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F82B2B15DD448CFA7A48E00 /* LocationManager.swift */; };
 		D892AE6EBA1118090298EF38 /* CallDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CCC3D9F95DDD5F17AA4E33F /* CallDetailView.swift */; };
 		DBD6FCF846AF2430D35A1463 /* IncidentReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAEAC3F7A89D1BF91C988C64 /* IncidentReport.swift */; };
+		E168931CA57036428F29A8BC /* WebSocketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3FC1F10BB2177890696DEF /* WebSocketTests.swift */; };
 		E4FE0D58983C624ECB2837A6 /* DispatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05AF6F591F3C44FD2E90F89 /* DispatchCall.swift */; };
 		FDF0781EF4CB906DE1817EE8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6815873E63D661D65A33A4E /* ContentView.swift */; };
 /* End PBXBuildFile section */
@@ -38,15 +43,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0C14C50A3BF32527F4DF2071 /* WebSocketClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketClient.swift; sourceTree = "<group>"; };
 		116786CE41E0B7A0B76C08C2 /* District.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = District.swift; sourceTree = "<group>"; };
-		170F80BD869B0EABA83E4168 /* SFCrime.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SFCrime.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		170F80BD869B0EABA83E4168 /* SFCrime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFCrime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F82B2B15DD448CFA7A48E00 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		21F7DA77F380AEEC99F2F02C /* SFCrimeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SFCrimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2304387DBFBFDE358855B82A /* CrimeMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrimeMapView.swift; sourceTree = "<group>"; };
 		31FD7F18B358081D3B85B623 /* MapContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapContainerView.swift; sourceTree = "<group>"; };
+		334EE979FC9D3DBE083EB8AF /* WebSocketMessages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketMessages.swift; sourceTree = "<group>"; };
 		34A6B3EEE79B98B964D030EF /* Priority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Priority.swift; sourceTree = "<group>"; };
+		431E74EA420168C4DEC07C97 /* APIClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientTests.swift; sourceTree = "<group>"; };
 		4C3C3C56604CF465DED7BCE4 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
 		4C5FAF3F394C5F1879BC6056 /* CachedDispatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedDispatchCall.swift; sourceTree = "<group>"; };
+		5D3FC1F10BB2177890696DEF /* WebSocketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketTests.swift; sourceTree = "<group>"; };
 		7CCD3813A6F75F74AA0FE3B3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		85A0D31D81E9F33404362106 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		9CCC3D9F95DDD5F17AA4E33F /* CallDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDetailView.swift; sourceTree = "<group>"; };
@@ -56,6 +65,7 @@
 		CAEAC3F7A89D1BF91C988C64 /* IncidentReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncidentReport.swift; sourceTree = "<group>"; };
 		CD0C6D41242DAD970E4EF3EF /* FilterSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSheetView.swift; sourceTree = "<group>"; };
 		D05AF6F591F3C44FD2E90F89 /* DispatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchCall.swift; sourceTree = "<group>"; };
+		D2B562651F754604A4088535 /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
 		E16E990C6A80CB101653F2EB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		F1D5C1C8FB0DA8BFDFD9B3C5 /* SFCrimeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFCrimeApp.swift; sourceTree = "<group>"; };
 		F87FD0910630D9DA3D51A77E /* CallListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallListView.swift; sourceTree = "<group>"; };
@@ -222,6 +232,8 @@
 			isa = PBXGroup;
 			children = (
 				85A0D31D81E9F33404362106 /* APIClient.swift */,
+				0C14C50A3BF32527F4DF2071 /* WebSocketClient.swift */,
+				334EE979FC9D3DBE083EB8AF /* WebSocketMessages.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -229,6 +241,9 @@
 		FCBED156348C4BE7271483EC /* SFCrimeTests */ = {
 			isa = PBXGroup;
 			children = (
+				431E74EA420168C4DEC07C97 /* APIClientTests.swift */,
+				D2B562651F754604A4088535 /* ModelTests.swift */,
+				5D3FC1F10BB2177890696DEF /* WebSocketTests.swift */,
 			);
 			path = SFCrimeTests;
 			sourceTree = "<group>";
@@ -286,7 +301,6 @@
 						ProvisioningStyle = Automatic;
 					};
 					4125CDDCF8AE5AC7E87B5E9F = {
-						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -301,7 +315,6 @@
 			);
 			mainGroup = 3A78FA726B6D0536FFBEF816;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -344,6 +357,8 @@
 				7E8056B4F67490F760035F69 /* Priority.swift in Sources */,
 				2100BE5F3E4002449E1FC0B9 /* SFCrimeApp.swift in Sources */,
 				AA46C579DA09B47551EF331D /* SettingsView.swift in Sources */,
+				8C9F9454786376CC2C7B8FB4 /* WebSocketClient.swift in Sources */,
+				55ADE5F10F2A4F9783778B77 /* WebSocketMessages.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,6 +366,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A3395A2DF6902B53797474D /* APIClientTests.swift in Sources */,
+				02691542A9254D0C6DCADD72 /* ModelTests.swift in Sources */,
+				E168931CA57036428F29A8BC /* WebSocketTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,6 +457,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SFCrime/SFCrime.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = WJLM3D3DK6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_GENERATION_MODE = GeneratedFile;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SFCrime needs your location to show nearby incidents on the map.";
@@ -523,6 +542,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = SFCrime/SFCrime.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = WJLM3D3DK6;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_GENERATION_MODE = GeneratedFile;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SFCrime needs your location to show nearby incidents on the map.";

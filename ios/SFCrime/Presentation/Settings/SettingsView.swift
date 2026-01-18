@@ -1,9 +1,14 @@
 import SwiftUI
+import SwiftData
 
 /// Settings view for app configuration.
 struct SettingsView: View {
+    @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel = SettingsViewModel()
     @State private var showingClearCacheAlert = false
+    @State private var cacheSize: String = "Calculating..."
+    @State private var cachedCallsCount: Int = 0
+    @State private var cachedIncidentsCount: Int = 0
 
     var body: some View {
         NavigationStack {
@@ -73,9 +78,23 @@ struct SettingsView: View {
                 // Cache Management
                 Section("Storage") {
                     HStack {
-                        Text("Cache Size")
+                        Text("Cached Calls")
                         Spacer()
-                        Text(viewModel.cacheSize)
+                        Text("\(cachedCallsCount)")
+                            .foregroundColor(.secondary)
+                    }
+
+                    HStack {
+                        Text("Cached Incidents")
+                        Spacer()
+                        Text("\(cachedIncidentsCount)")
+                            .foregroundColor(.secondary)
+                    }
+
+                    HStack {
+                        Text("Database Size")
+                        Spacer()
+                        Text(cacheSize)
                             .foregroundColor(.secondary)
                     }
 
@@ -84,6 +103,7 @@ struct SettingsView: View {
                     } label: {
                         Text("Clear Cache")
                     }
+                    .disabled(cachedCallsCount == 0 && cachedIncidentsCount == 0)
                 }
 
                 // About
@@ -139,15 +159,84 @@ struct SettingsView: View {
             .alert("Clear Cache?", isPresented: $showingClearCacheAlert) {
                 Button("Cancel", role: .cancel) { }
                 Button("Clear", role: .destructive) {
-                    viewModel.clearCache()
+                    clearCache()
                 }
             } message: {
                 Text("This will remove all cached data. The app will re-download data when needed.")
             }
             .task {
                 await viewModel.checkHealth()
+                await updateCacheStats()
             }
         }
+    }
+
+    // MARK: - Cache Management
+
+    /// Update cache statistics from SwiftData
+    private func updateCacheStats() async {
+        // Count cached records
+        let callsDescriptor = FetchDescriptor<CachedDispatchCall>()
+        let incidentsDescriptor = FetchDescriptor<CachedIncidentReport>()
+
+        do {
+            cachedCallsCount = try modelContext.fetchCount(callsDescriptor)
+            cachedIncidentsCount = try modelContext.fetchCount(incidentsDescriptor)
+        } catch {
+            print("Error counting cache: \(error)")
+            cachedCallsCount = 0
+            cachedIncidentsCount = 0
+        }
+
+        // Calculate database file size
+        cacheSize = calculateDatabaseSize()
+    }
+
+    /// Clear all cached data from SwiftData
+    private func clearCache() {
+        do {
+            try modelContext.delete(model: CachedDispatchCall.self)
+            try modelContext.delete(model: CachedIncidentReport.self)
+            try modelContext.save()
+
+            // Update stats
+            cachedCallsCount = 0
+            cachedIncidentsCount = 0
+
+            // Recalculate size (may need delay for file system)
+            Task {
+                try? await Task.sleep(for: .milliseconds(500))
+                cacheSize = calculateDatabaseSize()
+            }
+        } catch {
+            print("Error clearing cache: \(error)")
+        }
+    }
+
+    /// Calculate the SwiftData database file size
+    private func calculateDatabaseSize() -> String {
+        // Get the default SwiftData store location
+        let fileManager = FileManager.default
+        guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return "Unknown"
+        }
+
+        // SwiftData stores in default.store by default
+        let storeURL = appSupport.appendingPathComponent("default.store")
+
+        // Sum up all files in the store directory
+        var totalSize: Int64 = 0
+
+        if let enumerator = fileManager.enumerator(at: storeURL, includingPropertiesForKeys: [.fileSizeKey]) {
+            for case let fileURL as URL in enumerator {
+                if let fileSize = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                    totalSize += Int64(fileSize)
+                }
+            }
+        }
+
+        // Format as human-readable size
+        return ByteCountFormatter.string(fromByteCount: totalSize, countStyle: .file)
     }
 }
 
@@ -157,7 +246,6 @@ struct SettingsView: View {
 class SettingsViewModel: ObservableObject {
     @Published var health: HealthResponse?
     @Published var isLoading = false
-    @Published var cacheSize = "Calculating..."
 
     private let apiClient = APIClient.shared
 
@@ -171,18 +259,6 @@ class SettingsViewModel: ObservableObject {
             health = nil
             print("Error checking health: \(error)")
         }
-    }
-
-    func clearCache() {
-        // Clear SwiftData cache
-        // In a real implementation, this would delete cached records
-        cacheSize = "0 KB"
-    }
-
-    func calculateCacheSize() {
-        // Calculate SwiftData database size
-        // In a real implementation, this would check the database file size
-        cacheSize = "2.4 MB"
     }
 }
 

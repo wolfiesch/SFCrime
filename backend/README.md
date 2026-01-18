@@ -106,6 +106,43 @@ fly secrets set DATABASE_URL=...
 fly deploy
 ```
 
+## Testing
+
+```bash
+# Install dev dependencies
+uv sync --extra dev
+
+# Run tests
+uv run pytest
+
+# Run with coverage
+uv run pytest --cov=app --cov-report=html
+```
+
+**Note:** Some API tests require PostgreSQL with PostGIS and are skipped when running with SQLite. Run full integration tests against a PostgreSQL database.
+
 ## DataSF App Token
 
 Register for a free app token at https://dev.socrata.com to increase rate limits from 60 to 1000 requests/hour.
+
+## Fly.io Deployment
+
+```bash
+# First time setup
+fly launch --name sfcrime-api --region sjc
+
+# Set required secrets
+fly secrets set DATABASE_URL="postgresql://..."
+fly secrets set SODA_APP_TOKEN="your_token"  # Optional but recommended
+
+# Deploy
+fly deploy
+
+# View logs
+fly logs
+
+# Check status
+fly status
+```
+
+**Recommended:** Use Neon or Supabase for managed PostgreSQL with PostGIS support.
