@@ -1,0 +1,39 @@
+# fly.toml - Fly.io deployment configuration for SFCrime backend
+
+app = 'sfcrime-api'
+primary_region = 'sjc'  # San Jose - closest to SF
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
+  DISPATCH_POLL_INTERVAL_MINUTES = "5"
+  INCIDENTS_POLL_INTERVAL_MINUTES = "60"
+  DISPATCH_RETENTION_HOURS = "48"
+  API_V1_PREFIX = "/api/v1"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 250
+    soft_limit = 200
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

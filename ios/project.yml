@@ -1,0 +1,71 @@
+name: SFCrime
+options:
+  bundleIdPrefix: com.sfcrime
+  deploymentTarget:
+    iOS: "17.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  SFCrime:
+    type: application
+    platform: iOS
+    sources:
+      - path: SFCrime
+        excludes:
+          - "**/.DS_Store"
+    settings:
+      base:
+        INFOPLIST_GENERATION_MODE: GeneratedFile
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_NSLocationWhenInUseUsageDescription: "SFCrime needs your location to show nearby incidents on the map."
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.sfcrime.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    entitlements:
+      path: SFCrime/SFCrime.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+
+  SFCrimeTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SFCrimeTests
+    dependencies:
+      - target: SFCrime
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.sfcrime.tests
+
+schemes:
+  SFCrime:
+    build:
+      targets:
+        SFCrime: all
+        SFCrimeTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SFCrimeTests
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release

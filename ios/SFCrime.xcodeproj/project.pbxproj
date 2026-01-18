@@ -1,0 +1,610 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2100BE5F3E4002449E1FC0B9 /* SFCrimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D5C1C8FB0DA8BFDFD9B3C5 /* SFCrimeApp.swift */; };
+		2B71E9F89CE7B88BC1BAE589 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3C3C56604CF465DED7BCE4 /* ArchiveView.swift */; };
+		308FBA89904F591C8D0BD2C7 /* MapContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31FD7F18B358081D3B85B623 /* MapContainerView.swift */; };
+		4F842EB29BDEF7D320ED7CE0 /* CallListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87FD0910630D9DA3D51A77E /* CallListView.swift */; };
+		7E8056B4F67490F760035F69 /* Priority.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A6B3EEE79B98B964D030EF /* Priority.swift */; };
+		8408EADB02D593EF6AB5851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7CCD3813A6F75F74AA0FE3B3 /* Assets.xcassets */; };
+		8AEBE0E85269B0217A3570C9 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85A0D31D81E9F33404362106 /* APIClient.swift */; };
+		973165868766FEB3B043E524 /* CachedDispatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5FAF3F394C5F1879BC6056 /* CachedDispatchCall.swift */; };
+		A4B6FF31D21E7E3974194764 /* CachedIncidentReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF67806CEE322132911E5B06 /* CachedIncidentReport.swift */; };
+		AA46C579DA09B47551EF331D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E16E990C6A80CB101653F2EB /* SettingsView.swift */; };
+		AFE1A928F91AA1461CBAD767 /* CrimeMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2304387DBFBFDE358855B82A /* CrimeMapView.swift */; };
+		B6033DDDF93292543423634C /* FilterSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD0C6D41242DAD970E4EF3EF /* FilterSheetView.swift */; };
+		B8097BCBD1362F3A951B233D /* District.swift in Sources */ = {isa = PBXBuildFile; fileRef = 116786CE41E0B7A0B76C08C2 /* District.swift */; };
+		CCD3CA5970179B06DFBD6922 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F82B2B15DD448CFA7A48E00 /* LocationManager.swift */; };
+		D892AE6EBA1118090298EF38 /* CallDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CCC3D9F95DDD5F17AA4E33F /* CallDetailView.swift */; };
+		DBD6FCF846AF2430D35A1463 /* IncidentReport.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAEAC3F7A89D1BF91C988C64 /* IncidentReport.swift */; };
+		E4FE0D58983C624ECB2837A6 /* DispatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05AF6F591F3C44FD2E90F89 /* DispatchCall.swift */; };
+		FDF0781EF4CB906DE1817EE8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6815873E63D661D65A33A4E /* ContentView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EA67AC777D644E2AA3640F3B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 67DE1AF567F0092C0BD3E85F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4125CDDCF8AE5AC7E87B5E9F;
+			remoteInfo = SFCrime;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		116786CE41E0B7A0B76C08C2 /* District.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = District.swift; sourceTree = "<group>"; };
+		170F80BD869B0EABA83E4168 /* SFCrime.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SFCrime.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1F82B2B15DD448CFA7A48E00 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		21F7DA77F380AEEC99F2F02C /* SFCrimeTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SFCrimeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2304387DBFBFDE358855B82A /* CrimeMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrimeMapView.swift; sourceTree = "<group>"; };
+		31FD7F18B358081D3B85B623 /* MapContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapContainerView.swift; sourceTree = "<group>"; };
+		34A6B3EEE79B98B964D030EF /* Priority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Priority.swift; sourceTree = "<group>"; };
+		4C3C3C56604CF465DED7BCE4 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
+		4C5FAF3F394C5F1879BC6056 /* CachedDispatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedDispatchCall.swift; sourceTree = "<group>"; };
+		7CCD3813A6F75F74AA0FE3B3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		85A0D31D81E9F33404362106 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		9CCC3D9F95DDD5F17AA4E33F /* CallDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallDetailView.swift; sourceTree = "<group>"; };
+		AF67806CEE322132911E5B06 /* CachedIncidentReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedIncidentReport.swift; sourceTree = "<group>"; };
+		B6815873E63D661D65A33A4E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C30BC20D79CD92A989F51A30 /* SFCrime.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SFCrime.entitlements; sourceTree = "<group>"; };
+		CAEAC3F7A89D1BF91C988C64 /* IncidentReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncidentReport.swift; sourceTree = "<group>"; };
+		CD0C6D41242DAD970E4EF3EF /* FilterSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSheetView.swift; sourceTree = "<group>"; };
+		D05AF6F591F3C44FD2E90F89 /* DispatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DispatchCall.swift; sourceTree = "<group>"; };
+		E16E990C6A80CB101653F2EB /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F1D5C1C8FB0DA8BFDFD9B3C5 /* SFCrimeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SFCrimeApp.swift; sourceTree = "<group>"; };
+		F87FD0910630D9DA3D51A77E /* CallListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallListView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		13956E679C2B8D0004BFBFA8 /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		175DC13333695A76E74A7D63 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				170F80BD869B0EABA83E4168 /* SFCrime.app */,
+				21F7DA77F380AEEC99F2F02C /* SFCrimeTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		24D666186DBA4ED55904958C /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				9CCC3D9F95DDD5F17AA4E33F /* CallDetailView.swift */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		3A78FA726B6D0536FFBEF816 = {
+			isa = PBXGroup;
+			children = (
+				7A04877B4B56F2BE81579088 /* SFCrime */,
+				FCBED156348C4BE7271483EC /* SFCrimeTests */,
+				175DC13333695A76E74A7D63 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		54B9F5B72172E0E811F3487E /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				E16E990C6A80CB101653F2EB /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		5CDCA78AB89E6459A6EE8FEB /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		6BAB1036FCAD6A07A160CE25 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D05AF6F591F3C44FD2E90F89 /* DispatchCall.swift */,
+				116786CE41E0B7A0B76C08C2 /* District.swift */,
+				CAEAC3F7A89D1BF91C988C64 /* IncidentReport.swift */,
+				34A6B3EEE79B98B964D030EF /* Priority.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		7A04877B4B56F2BE81579088 /* SFCrime */ = {
+			isa = PBXGroup;
+			children = (
+				7CCD3813A6F75F74AA0FE3B3 /* Assets.xcassets */,
+				B6815873E63D661D65A33A4E /* ContentView.swift */,
+				C30BC20D79CD92A989F51A30 /* SFCrime.entitlements */,
+				F1D5C1C8FB0DA8BFDFD9B3C5 /* SFCrimeApp.swift */,
+				AB7FF6EDF68FB551315074C8 /* Core */,
+				7DDE732051C3B425C4C41829 /* Data */,
+				AF01920F8A8F9FB4252C2A2E /* Domain */,
+				AA9C6D77D313D52F8EF19813 /* Presentation */,
+			);
+			path = SFCrime;
+			sourceTree = "<group>";
+		};
+		7C176D7301AABFEDFB67803A /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				2304387DBFBFDE358855B82A /* CrimeMapView.swift */,
+				CD0C6D41242DAD970E4EF3EF /* FilterSheetView.swift */,
+				31FD7F18B358081D3B85B623 /* MapContainerView.swift */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		7DDE732051C3B425C4C41829 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				A6185E64DD47A3BB5D83C9B5 /* Cache */,
+				E9A35B2244423FC9D58522C1 /* Network */,
+				E0CFB091BB6D67135C597BE2 /* Repositories */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		7F73C7BC81D274B2AFB2792E /* List */ = {
+			isa = PBXGroup;
+			children = (
+				F87FD0910630D9DA3D51A77E /* CallListView.swift */,
+			);
+			path = List;
+			sourceTree = "<group>";
+		};
+		A6185E64DD47A3BB5D83C9B5 /* Cache */ = {
+			isa = PBXGroup;
+			children = (
+				4C5FAF3F394C5F1879BC6056 /* CachedDispatchCall.swift */,
+				AF67806CEE322132911E5B06 /* CachedIncidentReport.swift */,
+			);
+			path = Cache;
+			sourceTree = "<group>";
+		};
+		AA9C6D77D313D52F8EF19813 /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				BF624754FC174B99A251101F /* Archive */,
+				24D666186DBA4ED55904958C /* Detail */,
+				7F73C7BC81D274B2AFB2792E /* List */,
+				7C176D7301AABFEDFB67803A /* Map */,
+				54B9F5B72172E0E811F3487E /* Settings */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		AB7FF6EDF68FB551315074C8 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				1F82B2B15DD448CFA7A48E00 /* LocationManager.swift */,
+				5CDCA78AB89E6459A6EE8FEB /* Extensions */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		AF01920F8A8F9FB4252C2A2E /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				6BAB1036FCAD6A07A160CE25 /* Models */,
+				13956E679C2B8D0004BFBFA8 /* UseCases */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		BF624754FC174B99A251101F /* Archive */ = {
+			isa = PBXGroup;
+			children = (
+				4C3C3C56604CF465DED7BCE4 /* ArchiveView.swift */,
+			);
+			path = Archive;
+			sourceTree = "<group>";
+		};
+		E0CFB091BB6D67135C597BE2 /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		E9A35B2244423FC9D58522C1 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				85A0D31D81E9F33404362106 /* APIClient.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		FCBED156348C4BE7271483EC /* SFCrimeTests */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SFCrimeTests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		001468CF7D4EC12E47588255 /* SFCrimeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D127DE62C1003230AD7D7094 /* Build configuration list for PBXNativeTarget "SFCrimeTests" */;
+			buildPhases = (
+				F27698F10C284C6E1705B2C2 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0455A54E5088F420CFB7B376 /* PBXTargetDependency */,
+			);
+			name = SFCrimeTests;
+			packageProductDependencies = (
+			);
+			productName = SFCrimeTests;
+			productReference = 21F7DA77F380AEEC99F2F02C /* SFCrimeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		4125CDDCF8AE5AC7E87B5E9F /* SFCrime */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6A07FC0AC48803EAB053C49E /* Build configuration list for PBXNativeTarget "SFCrime" */;
+			buildPhases = (
+				2642B2983EB903C6388777B1 /* Sources */,
+				E7648373159C16B92AA63CE2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SFCrime;
+			packageProductDependencies = (
+			);
+			productName = SFCrime;
+			productReference = 170F80BD869B0EABA83E4168 /* SFCrime.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		67DE1AF567F0092C0BD3E85F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					001468CF7D4EC12E47588255 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					4125CDDCF8AE5AC7E87B5E9F = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 7A966291D30AD10B1AA6F74F /* Build configuration list for PBXProject "SFCrime" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 3A78FA726B6D0536FFBEF816;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4125CDDCF8AE5AC7E87B5E9F /* SFCrime */,
+				001468CF7D4EC12E47588255 /* SFCrimeTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E7648373159C16B92AA63CE2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8408EADB02D593EF6AB5851F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2642B2983EB903C6388777B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8AEBE0E85269B0217A3570C9 /* APIClient.swift in Sources */,
+				2B71E9F89CE7B88BC1BAE589 /* ArchiveView.swift in Sources */,
+				973165868766FEB3B043E524 /* CachedDispatchCall.swift in Sources */,
+				A4B6FF31D21E7E3974194764 /* CachedIncidentReport.swift in Sources */,
+				D892AE6EBA1118090298EF38 /* CallDetailView.swift in Sources */,
+				4F842EB29BDEF7D320ED7CE0 /* CallListView.swift in Sources */,
+				FDF0781EF4CB906DE1817EE8 /* ContentView.swift in Sources */,
+				AFE1A928F91AA1461CBAD767 /* CrimeMapView.swift in Sources */,
+				E4FE0D58983C624ECB2837A6 /* DispatchCall.swift in Sources */,
+				B8097BCBD1362F3A951B233D /* District.swift in Sources */,
+				B6033DDDF93292543423634C /* FilterSheetView.swift in Sources */,
+				DBD6FCF846AF2430D35A1463 /* IncidentReport.swift in Sources */,
+				CCD3CA5970179B06DFBD6922 /* LocationManager.swift in Sources */,
+				308FBA89904F591C8D0BD2C7 /* MapContainerView.swift in Sources */,
+				7E8056B4F67490F760035F69 /* Priority.swift in Sources */,
+				2100BE5F3E4002449E1FC0B9 /* SFCrimeApp.swift in Sources */,
+				AA46C579DA09B47551EF331D /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F27698F10C284C6E1705B2C2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0455A54E5088F420CFB7B376 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4125CDDCF8AE5AC7E87B5E9F /* SFCrime */;
+			targetProxy = EA67AC777D644E2AA3640F3B /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		18A0B9503B8EABD9DAD6FDAD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Debug;
+		};
+		1A4AE5A6DC8164918C56E274 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SFCrime/SFCrime.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_GENERATION_MODE = GeneratedFile;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SFCrime needs your location to show nearby incidents on the map.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sfcrime.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		31BCBD74E786EA9B38213843 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.10;
+			};
+			name = Release;
+		};
+		41815335B88AB8E85833616F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SFCrime/SFCrime.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_GENERATION_MODE = GeneratedFile;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "SFCrime needs your location to show nearby incidents on the map.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sfcrime.app;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9F49F52EA60F1A1C2AC673C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sfcrime.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SFCrime.app/SFCrime";
+			};
+			name = Release;
+		};
+		F74098740260E460B5DBD211 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.sfcrime.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SFCrime.app/SFCrime";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6A07FC0AC48803EAB053C49E /* Build configuration list for PBXNativeTarget "SFCrime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41815335B88AB8E85833616F /* Debug */,
+				1A4AE5A6DC8164918C56E274 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7A966291D30AD10B1AA6F74F /* Build configuration list for PBXProject "SFCrime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18A0B9503B8EABD9DAD6FDAD /* Debug */,
+				31BCBD74E786EA9B38213843 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D127DE62C1003230AD7D7094 /* Build configuration list for PBXNativeTarget "SFCrimeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F74098740260E460B5DBD211 /* Debug */,
+				9F49F52EA60F1A1C2AC673C3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 67DE1AF567F0092C0BD3E85F /* Project object */;
+}
