@@ -25,6 +25,7 @@ dev = [
     "pytest-cov>=4.1.0",
     "httpx>=0.26.0",
     "ruff>=0.2.0",
+    "aiosqlite>=0.20.0",
 ]
 
 [build-system]

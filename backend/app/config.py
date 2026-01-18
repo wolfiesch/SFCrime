@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "postgresql+asyncpg://localhost:5432/sfcrime"
 
+    # Diachron integration (optional - enables historical context)
+    diachron_database_url: str | None = None  # Separate DB or same as database_url
+    diachron_enabled: bool = False  # Set to True to enable dual-write
+
     # DataSF SODA API
     soda_app_token: str | None = None  # Optional but recommended for higher rate limits
     soda_base_url: str = "https://data.sfgov.org/resource"

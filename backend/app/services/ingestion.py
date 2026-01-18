@@ -1,3 +1,8 @@
+# ============================================================================
+# CHANGELOG (recent first, max 5 entries)
+# 01/18/2026 - Added Diachron dual-write integration (Claude)
+# ============================================================================
+
 """Ingestion service for syncing DataSF data to local database."""
 
 import logging
@@ -11,6 +16,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.models import DispatchCall, IncidentReport, SyncCheckpoint
 from app.schemas.dispatch_call import Coordinates, DispatchCallOut
+from app.services.diachron_adapter import (
+    dispatch_call_dict_to_diachron,
+    incident_report_dict_to_diachron,
+)
+from app.services.diachron_writer import get_diachron_writer
 from app.services.soda_client import SODAClient
 
 logger = logging.getLogger(__name__)
@@ -178,6 +188,10 @@ class IngestionService:
             await self.update_checkpoint("dispatch_calls", latest_updated, count or 0)
 
         logger.info(f"Synced {upserted} dispatch call records")
+
+        # Dual-write to Diachron (if enabled)
+        await self._write_to_diachron(records, kind="dispatch")
+
         return upserted, upserted_cad_numbers
 
     async def fetch_calls_by_cad_numbers(
@@ -351,6 +365,10 @@ class IngestionService:
             await self.update_checkpoint("incident_reports", latest_updated, count or 0)
 
         logger.info(f"Synced {upserted} incident report records")
+
+        # Dual-write to Diachron (if enabled)
+        await self._write_to_diachron(records, kind="incident")
+
         return upserted
 
     async def prune_old_dispatch_calls(self) -> int:
@@ -372,6 +390,60 @@ class IngestionService:
             logger.info(f"Pruned {deleted} old dispatch calls")
 
         return deleted
+
+    async def _write_to_diachron(
+        self,
+        records: list[dict],
+        kind: str,
+    ) -> tuple[int, int]:
+        """
+        Write records to Diachron's location_facts table (dual-write pattern).
+
+        This enables permanent historical storage while SFCrime maintains
+        its 48hr retention for real-time operations.
+
+        Args:
+            records: Raw DataSF records
+            kind: Record type ('dispatch' or 'incident')
+
+        Returns:
+            Tuple of (inserted_count, updated_count)
+        """
+        writer = await get_diachron_writer()
+        if not writer:
+            # Diachron integration disabled
+            return 0, 0
+
+        # Convert records to Diachron facts
+        facts = []
+        for record in records:
+            if kind == "dispatch":
+                fact = dispatch_call_dict_to_diachron(record)
+            elif kind == "incident":
+                fact = incident_report_dict_to_diachron(record)
+            else:
+                logger.warning(f"Unknown record kind: {kind}")
+                continue
+
+            if fact:
+                facts.append(fact)
+
+        if not facts:
+            return 0, 0
+
+        try:
+            inserted, updated = await writer.write_facts_batch(
+                facts,
+                source_name=f"sfcrime_{kind}_ingestion",
+            )
+            logger.info(
+                f"Diachron dual-write ({kind}): {inserted} inserted, {updated} updated"
+            )
+            return inserted, updated
+        except Exception as e:
+            logger.error(f"Diachron dual-write failed: {e}")
+            # Don't fail the main ingestion if Diachron write fails
+            return 0, 0
 
     async def sync_incident_reports_range(
         self, start_date: datetime, end_date: datetime
